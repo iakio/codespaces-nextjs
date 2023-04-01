@@ -1,78 +1,48 @@
-import { useCallback, useEffect, useState } from 'react'
-import Button from '../components/Button'
-import ClickCount from '../components/ClickCount'
-import styles from '../styles/home.module.css'
-import Link from "next/link"
-import Layout from '../components/layout'
+import Head from "next/head";
+import Layout, { siteTitle } from "../components/layout";
+import utilStyles from "../components/utils.module.css";
+import { getSortedPostsData } from "./posts/posts";
 
-function throwError() {
-  console.log(
-    // The function body() is not defined
-    document.body()
-  )
+export async function getStaticProps() {
+  const allPostsData = getSortedPostsData();
+
+  return {
+    props: {
+      allPostsData,
+    },
+  };
 }
 
-function Home() {
-  const [count, setCount] = useState(0)
-  const increment = useCallback(() => {
-    setCount((v) => v + 1)
-  }, [setCount])
-
-  useEffect(() => {
-    const r = setInterval(() => {
-      increment()
-    }, 1000)
-
-    return () => {
-      clearInterval(r)
-    }
-  }, [increment])
-
+export default function Home({ allPostsData }) {
   return (
     <Layout home>
-      <main className={styles.main}>
-        <h1>Fast Refresh Demo</h1>
-        <p>
-          Read <Link href="/posts/first-post">this</Link> page!
-        </p>
-        <p>
-          Fast Refresh is a Next.js feature that gives you instantaneous feedback
-          on edits made to your React components, without ever losing component
-          state.
-        </p>
-        <hr className={styles.hr} />
-        <div>
-          <p>
-            Auto incrementing value. The counter won't reset after edits or if
-            there are errors.
-          </p>
-          <p>Current value: {count}</p>
-        </div>
-        <hr className={styles.hr} />
-        <div>
-          <p>Component with state.</p>
-          <ClickCount />
-        </div>
-        <hr className={styles.hr} />
-        <div>
-          <p>
-            The button below will throw 2 errors. You'll see the error overlay to
-            let you know about the errors but it won't break the page or reset
-            your state.
-          </p>
-          <Button
-            onClick={(e) => {
-              setTimeout(() => document.parentNode(), 0)
-              throwError()
-            }}
-          >
-            Throw an Error
-          </Button>
-        </div>
-        <hr className={styles.hr} />
-      </main>
-    </Layout>
-  )
-}
 
-export default Home
+      <Head>
+        <title>Next.js Sample Website</title>
+      </Head>
+
+      <section className={utilStyles.headingMd}>
+        <p>[Your Self Introduction]</p>
+        <p>
+          (This is a sample website - you’ll be building a site like this on{" "}
+          <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
+        </p>
+      </section>
+
+      <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
+        <h2 className={utilStyles.headingLg}>Blog</h2>
+        <ul className={utilStyles.list}>
+          {allPostsData.map(({ id, date, title }) => (
+            <li className={utilStyles.listItem} key={id}>
+              {title}
+              <br />
+              {id}
+              <br />
+              {date}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </Layout>
+  );
+}
